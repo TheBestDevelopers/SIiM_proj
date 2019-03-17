@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">EXIFPhotoGallery</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_home">Gallery</string>
+    <string name="title_dashboard">Search</string>
+    <string name="title_notifications">Camera</string>
+
+    <!--Fragments tags-->
+    <string name="gallery_tag">Gallery</string>
+    <string name="search_tag">Search</string>
+    <string name="details_tag">Details</string>
+    <!--Fragments tags-->
 </resources>
