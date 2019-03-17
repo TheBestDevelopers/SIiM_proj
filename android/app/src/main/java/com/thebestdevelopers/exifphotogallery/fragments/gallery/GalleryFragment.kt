@@ -1,52 +1,67 @@
 package com.thebestdevelopers.exifphotogallery.fragments.gallery
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
+import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.thebestdevelopers.exifphotogallery.R
+import kotlinx.android.synthetic.main.fragment_gallery.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [GalleryFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [GalleryFragment.newInstance] factory method to
- * create an instance of this fragment.
- *
- */
 class GalleryFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
     private var listener: OnFragmentInteractionListener? = null
+    private var recyclerViewAdapter: GalleryRecyclerViewAdapter? = null
+    private var photosList: ArrayList<PhotoFile> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        checkPermissions()
         return inflater.inflate(R.layout.fragment_gallery, container, false)
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+    private fun checkPermissions() {
+        val permission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (permission != PackageManager.PERMISSION_GRANTED)
+            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+        else {
+            getGalleryFromStorage()
+            setupRecyclerAdapter()
+        }
+    }
+
+    private fun getGalleryFromStorage() {
+        val cursor =
+            requireContext().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
+        while (cursor != null && cursor.moveToNext()) {
+            var photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+            var file = PhotoFile(photo)
+            file.extractExifData()
+            photosList.add(file)
+        }
+        cursor.close()
+    }
+
+    private fun setupRecyclerAdapter() {
+        recyclerViewAdapter = GalleryRecyclerViewAdapter(photosList)
+        val layout = GridLayoutManager(requireContext(), 4)
+        rv_photos.layoutManager = layout
+        rv_photos.adapter = recyclerViewAdapter
+    }
+
     fun onButtonPressed(uri: Uri) {
         listener?.onFragmentInteraction(uri)
     }
@@ -65,32 +80,13 @@ class GalleryFragment : Fragment() {
         listener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
+
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment GalleryFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance() =
             GalleryFragment().apply {
@@ -98,5 +94,14 @@ class GalleryFragment : Fragment() {
 
                 }
             }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1) {
+            if ((grantResults[0] and grantResults.size) == PackageManager.PERMISSION_GRANTED) {
+                getGalleryFromStorage()
+                setupRecyclerAdapter()
+            }
+        }
     }
 }
