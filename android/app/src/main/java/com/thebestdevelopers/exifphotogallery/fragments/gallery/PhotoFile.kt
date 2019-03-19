@@ -9,7 +9,7 @@ class PhotoFile(path: String) {
     fun extractExifData() {
         var exif = ExifInterface(mPath)
         //pobranie wszystkich danych exif
-        soft = exif.getAttribute(ExifInterface.TAG_SOFTWARE)
+        //soft = exif.getAttribute(ExifInterface.TAG_SOFTWARE)
     }
 
     fun getSoftTAG() = soft

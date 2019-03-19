@@ -25,7 +25,7 @@ class GalleryRecyclerViewAdapter(photoList: ArrayList<PhotoFile>) :
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         val photo = photos[position]
-        Picasso.get().load(File(photo.mPath)).into(holder.imageView)
+        Picasso.get().load(File(photo.mPath)).centerCrop().resize(300,300).into(holder.imageView)
     }
 
     class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

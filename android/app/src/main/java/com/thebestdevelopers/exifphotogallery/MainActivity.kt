@@ -7,11 +7,13 @@ import com.thebestdevelopers.exifphotogallery.fragments.gallery.GalleryFragment
 import com.thebestdevelopers.exifphotogallery.fragments.search.SearchFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_gallery -> {
+                viewText.setText(getString(R.string.gallery_tag))
                 supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.mainFrame, GalleryFragment.newInstance(), getString(R.string.gallery_tag))
@@ -20,6 +22,7 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_search -> {
+                viewText.setText(getString(R.string.search_tag))
                 supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.mainFrame, SearchFragment.newInstance(), getString(R.string.search_tag))
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        viewText.setText(getString(R.string.gallery_tag))
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         supportFragmentManager
             .beginTransaction()

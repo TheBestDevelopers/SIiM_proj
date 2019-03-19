@@ -1,7 +1,6 @@
 package com.thebestdevelopers.exifphotogallery.fragments.gallery
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -9,17 +8,17 @@ import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.thebestdevelopers.exifphotogallery.R
-import kotlinx.android.synthetic.main.fragment_gallery.*
 
 class GalleryFragment : Fragment() {
 
     private var listener: OnFragmentInteractionListener? = null
-    private var recyclerViewAdapter: GalleryRecyclerViewAdapter? = null
     private var photosList: ArrayList<PhotoFile> = ArrayList()
+    private var mRv_photos: RecyclerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +28,10 @@ class GalleryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val rootView = inflater.inflate(R.layout.fragment_gallery, container, false)
+        mRv_photos = rootView.findViewById(R.id.rv_photos) as RecyclerView
         checkPermissions()
-        return inflater.inflate(R.layout.fragment_gallery, container, false)
+        return rootView
     }
 
     private fun checkPermissions() {
@@ -56,23 +57,8 @@ class GalleryFragment : Fragment() {
     }
 
     private fun setupRecyclerAdapter() {
-        recyclerViewAdapter = GalleryRecyclerViewAdapter(photosList)
-        val layout = GridLayoutManager(requireContext(), 4)
-        rv_photos.layoutManager = layout
-        rv_photos.adapter = recyclerViewAdapter
-    }
-
-    fun onButtonPressed(uri: Uri) {
-        listener?.onFragmentInteraction(uri)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            listener = context
-        } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
-        }
+        mRv_photos!!.layoutManager = GridLayoutManager(requireContext(), 4)
+        mRv_photos!!.adapter = GalleryRecyclerViewAdapter(photosList)
     }
 
     override fun onDetach() {
@@ -82,7 +68,6 @@ class GalleryFragment : Fragment() {
 
 
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
