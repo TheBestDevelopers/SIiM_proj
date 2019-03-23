@@ -4,13 +4,9 @@ import android.media.ExifInterface
 
 class PhotoFile(path: String) {
     var mPath = path
-    var soft = ""
 
     fun extractExifData() {
         var exif = ExifInterface(mPath)
-        //pobranie wszystkich danych exif
-        //soft = exif.getAttribute(ExifInterface.TAG_SOFTWARE)
+        //dane EXIF - możne tutaj je 'wydobyc'
     }
-
-    fun getSoftTAG() = soft
 }

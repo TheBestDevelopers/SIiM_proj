@@ -1,8 +1,8 @@
 package com.thebestdevelopers.exifphotogallery.fragments.gallery
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
@@ -58,7 +58,16 @@ class GalleryFragment : Fragment() {
 
     private fun setupRecyclerAdapter() {
         mRv_photos!!.layoutManager = GridLayoutManager(requireContext(), 4)
-        mRv_photos!!.adapter = GalleryRecyclerViewAdapter(photosList)
+        mRv_photos!!.adapter = GalleryRecyclerViewAdapter(photosList, listener)
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            listener = context
+        } else {
+            throw RuntimeException(context!!.toString() + " must implement OnListFragmentInteractionListener")
+        }
     }
 
     override fun onDetach() {
@@ -68,7 +77,7 @@ class GalleryFragment : Fragment() {
 
 
     interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
+        fun onFragmentInteraction(photo: PhotoFile)
     }
 
     companion object {

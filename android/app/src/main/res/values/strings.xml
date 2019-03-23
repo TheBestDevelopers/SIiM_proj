@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EXIFPhotoGallery</string>
+    <string name="app_name">EXIF Gallery</string>
     <string name="title_home">Gallery</string>
     <string name="title_dashboard">Search</string>
     <string name="title_notifications">Camera</string>
@@ -7,6 +7,6 @@
     <!--Fragments tags-->
     <string name="gallery_tag">Gallery</string>
     <string name="search_tag">Search</string>
-    <string name="details_tag">Details</string>
+    <string name="details_tag">Photo details</string>
     <!--Fragments tags-->
 </resources>
