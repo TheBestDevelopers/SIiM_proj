@@ -1,12 +1,11 @@
 package com.thebestdevelopers.exifphotogallery
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.GalleryFragment
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
@@ -17,12 +16,22 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import pl.aprilapps.easyphotopicker.DefaultCallback
+import pl.aprilapps.easyphotopicker.EasyImage
+import pl.aprilapps.easyphotopicker.MediaFile
+import pl.aprilapps.easyphotopicker.MediaSource
 
 
 class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionListener {
 
     private var mCurrentPhotoPath: String? = null
     val REQUEST_IMAGE_CAPTURE = 101
+    var easyImage : EasyImage? = null
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -65,7 +74,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
     }
 
     private fun startCamera() {
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+        /*Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             // Ensure that there's a camera activity to handle the intent
             takePictureIntent.resolveActivity(packageManager)?.also {
                 // Create the File where the photo should go
@@ -86,7 +95,27 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                 }
             }
-        }
+        }*/
+        Dexter.withActivity(this)
+            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                    if (report!!.areAllPermissionsGranted())
+                        launchCamera()
+                }
+            }).check()
+
+    }
+
+    private fun launchCamera() {
+        easyImage = EasyImage.Builder(this)
+            .setCopyImagesToPublicGalleryFolder(true)
+            .build()
+        easyImage?.openCameraForImage(this)
     }
 
     private fun galleryAddPic() {
@@ -98,10 +127,28 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
+        /*if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
             galleryAddPic()
             onFragmentInteraction(PhotoFile(mCurrentPhotoPath!!))
-        }
+        }*/
+        easyImage?.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
+            override fun onMediaFilesPicked(imageFiles: Array<MediaFile>, source: MediaSource) {
+                onPhotosReturned(imageFiles)
+            }
+
+            override fun onImagePickerError(error: Throwable, source: MediaSource) {
+                //Some error handling
+                error.printStackTrace()
+            }
+
+            override fun onCanceled(source: MediaSource) {
+                //Not necessary to remove any files manually anymore
+            }
+        })
+    }
+
+    private fun onPhotosReturned(data : Array<MediaFile>) {
+
     }
 
     @Throws(IOException::class)

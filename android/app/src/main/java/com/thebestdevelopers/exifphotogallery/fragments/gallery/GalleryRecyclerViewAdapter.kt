@@ -9,7 +9,7 @@ import com.squareup.picasso.Picasso
 import com.thebestdevelopers.exifphotogallery.R
 import java.io.File
 
-class GalleryRecyclerViewAdapter(photoList: ArrayList<PhotoFile>, val listener: GalleryFragment.OnFragmentInteractionListener?) :
+class GalleryRecyclerViewAdapter(photoList: ArrayList<PhotoFile>, val listener: GalleryFragment.OnFragmentInteractionListener?, val width : Int) :
     RecyclerView.Adapter<GalleryRecyclerViewAdapter.CustomViewHolder>() {
 
     var photos = photoList
@@ -25,7 +25,7 @@ class GalleryRecyclerViewAdapter(photoList: ArrayList<PhotoFile>, val listener: 
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         val photo = photos[position]
-        Picasso.get().load(File(photo.mPath)).centerCrop().resize(200,200).into(holder.imageView)
+        Picasso.get().load(File(photo.mPath)).centerCrop().resize(width,width).into(holder.imageView)
         holder.itemView.setOnClickListener {
             listener?.onFragmentInteraction(photo)
         }
