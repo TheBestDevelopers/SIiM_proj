@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="exifPropertiesList">
+        <item>Manufacturer</item>
+        <item>Model</item>
+        <item>Orientation</item>
+        <item>x-Resolution</item>
+        <item>y-Resolution</item>
+        <item>Resolution Unit</item>
+        <item>Software</item>
+        <item>Date and Time</item>
+        <item>YCbCr Positioning</item>
+        <item>Compression</item>
+        <item>x-Resolution</item>
+        <item>y-Resolution</item>
+        <item>Resolution Unit</item>
+        <item>Exposure Time</item>
+        <item>FNumber</item>
+        <item>ExposureProgram</item>
+        <item>Exif Version</item>
+        <item>Date and Time (original)</item>
+        <item>Date and Time (digitized)</item>
+        <item>ComponentsConfiguration</item>
+        <item>Compressed Bits per Pixel</item>
+        <item>Exposure Bias</item>
+        <item>MaxApertureValue</item>
+        <item>Metering Mode</item>
+        <item>Flash</item>
+        <item>Focal Length</item>
+        <item>Maker Note</item>
+        <item>FlashPixVersion</item>
+        <item>Color Space</item>
+        <item>PixelXDimension</item>
+        <item>PixelYDimension</item>
+        <item>File Source</item>
+        <item>InteroperabilityIndex</item>
+        <item>InteroperabilityVersion</item>
+
+    </string-array>
+</resources>
