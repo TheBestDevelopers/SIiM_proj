@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
 
     private var mCurrentPhotoPath: String? = null
     val REQUEST_IMAGE_CAPTURE = 101
