@@ -48,8 +48,8 @@ class GalleryFragment : Fragment() {
         val cursor =
             requireContext().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
         while (cursor != null && cursor.moveToNext()) {
-            var photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
-            var file = PhotoFile(photo)
+            val photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+            val file = PhotoFile(photo)
             file.extractExifData()
             photosList.add(file)
         }
@@ -57,8 +57,8 @@ class GalleryFragment : Fragment() {
     }
 
     private fun setupRecyclerAdapter() {
-        mRv_photos!!.layoutManager = GridLayoutManager(requireContext(), 4)
-        mRv_photos!!.adapter = GalleryRecyclerViewAdapter(photosList, listener)
+        mRv_photos?.layoutManager = GridLayoutManager(requireContext(), 4)
+        mRv_photos?.adapter = GalleryRecyclerViewAdapter(photosList, listener)
     }
 
     override fun onAttach(context: Context?) {
