@@ -22,7 +22,7 @@
                 android:layout_marginBottom="10dp">
 
             <Spinner
-                    android:id="@+id/exifSpinner"
+                    android:id="@+id/exif_spinner"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -30,6 +30,7 @@
                     android:entries="@array/exifPropertiesList"/>
 
             <EditText
+                    android:id="@+id/exif_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -37,6 +38,7 @@
                     android:textSize="@dimen/search_fragment_font_size"/>
 
             <Button
+                    android:id="@+id/button_ok"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"

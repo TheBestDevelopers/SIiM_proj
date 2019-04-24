@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +51,7 @@ class GalleryFragment : Fragment() {
         while (cursor != null && cursor.moveToNext()) {
             var photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
             var file = PhotoFile(photo)
+            Log.e("qwerty", photo)
             file.extractExifData()
             photosList.add(file)
         }
