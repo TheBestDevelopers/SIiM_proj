@@ -1,5 +1,6 @@
 package com.thebestdevelopers.exifphotogallery.fragments.search
 
+import android.app.DatePickerDialog
 import android.content.Context
 import android.support.media.ExifInterface
 import android.os.Bundle
@@ -10,14 +11,12 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Spinner
+import android.widget.*
 
 import com.thebestdevelopers.exifphotogallery.R
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
+import java.text.ParseException
 
-import android.widget.Button
-import android.widget.TextView
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Collectors
@@ -29,15 +28,15 @@ class SearchFragment : Fragment() {
     private var exifSpinner: Spinner? = null
     private var allPhotosList: ArrayList<PhotoFile> = ArrayList()
     private var mRv_photos: RecyclerView? = null
-    private var exifValue : TextView? = null
-    private var okButton : Button? = null
+    private var exifValue: EditText? = null
+    private var okButton: Button? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnFragmentInteractionListener")
         }
     }
 
@@ -49,19 +48,39 @@ class SearchFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_search, container, false)
-        exifSpinner = rootView.findViewById(R.id.exif_spinner)
-        mRv_photos = rootView.findViewById(R.id.rv_filtered_photos)
-        exifValue = rootView.findViewById(R.id.exif_value)
-        okButton = rootView.findViewById(R.id.button_ok)
-
-        val exifParameters = createExifParametersList()
-        val adapter = ArrayAdapter(requireContext(), R.layout.support_simple_spinner_dropdown_item, exifParameters)
+        bindViews(rootView)
+        setListeners()
+        val adapter =
+            ArrayAdapter(requireContext(), R.layout.support_simple_spinner_dropdown_item, createExifParametersList())
         exifSpinner?.adapter = adapter
-        okButton?.setOnClickListener { onOkClick() }
         return rootView
     }
 
-    private fun createExifParametersList() : ArrayList<ExifParameter> {
+    private fun onExifValueClick() {
+        if (exifSpinnerSelectedItemTag()?.equals(ExifInterface.TAG_DATETIME) == true) {
+
+            val calendar = Calendar.getInstance()
+            exifValue?.isFocusable = false
+            val datePickerOnDataSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, monthOfYear)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                val formatter = SimpleDateFormat(getString(R.string.default_date_pattern), Locale.US)
+                exifValue?.setText(formatter.format(calendar?.time))
+                exifValue?.setSelection(formatter.toPattern().length)
+            }
+
+            DatePickerDialog(
+                requireContext(),
+                datePickerOnDataSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+    }
+
+    private fun createExifParametersList(): ArrayList<ExifParameter> {
         val exifParameters = ArrayList<ExifParameter>()
         val item = ExifParameter("Date", ExifInterface.TAG_DATETIME)
         exifParameters.add(item)
@@ -77,29 +96,41 @@ class SearchFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         allPhotosList.clear()
+        exifValue?.text?.clear()
     }
 
     private fun onOkClick() {
-        val exifParameter = exifSpinner?.selectedItem as ExifParameter?
-        when(exifParameter?.tagName) {
-            ExifInterface.TAG_DATETIME -> filterByParam(exifParameter.tagName)
+        when (exifSpinnerSelectedItemTag()) {
+            ExifInterface.TAG_DATETIME -> filterByDate(ExifInterface.TAG_DATETIME)
         }
     }
 
-    private fun filterByParam(exifParameterTagName : String){
-        val userDate = exifValue?.text
-        val formatter = SimpleDateFormat("yyyy:MM:dd", Locale.US)
-        val formatter2 = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val filteredPhotoList  = allPhotosList.stream().filter { v -> v.readSingleExif(exifParameterTagName) != null
-                && formatter.parse(v.readSingleExif(exifParameterTagName)?.substring(0..10)) ==
-                formatter2.parse(userDate.toString()) }.collect(Collectors.toList())
+    private fun exifSpinnerSelectedItemTag(): String? {
+        val exifParameter = exifSpinner?.selectedItem as ExifParameter?
+        return exifParameter?.tagName
+    }
 
-        mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
-        filteredPhotoList.clear()
+    private fun filterByDate(exifParameterTagName: String) {
+        val userDate = exifValue?.text
+        val formatter = SimpleDateFormat(getString(R.string.colon_date_pattern), Locale.US)
+        val formatter2 = SimpleDateFormat(getString(R.string.default_date_pattern), Locale.US)
+        try {
+            val filteredPhotoList = allPhotosList.stream().filter { v ->
+                v.readSingleExif(exifParameterTagName) != null
+                        && formatter.parse(v.readSingleExif(exifParameterTagName)?.substring(0..10)) ==
+                        formatter2.parse(userDate?.toString())
+            }.collect(Collectors.toList())
+
+            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+            filteredPhotoList.clear()
+        } catch (e: ParseException) {
+            Toast.makeText(requireContext(), "Enter date!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun getGalleryFromStorage() {
-        val cursor = requireContext().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
+        val cursor =
+            requireContext().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
         while (cursor != null && cursor.moveToNext()) {
             val photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
             val file = PhotoFile(photo)
@@ -118,8 +149,20 @@ class SearchFragment : Fragment() {
         listener = null
     }
 
+    private fun bindViews(rootView: View) {
+        exifSpinner = rootView.findViewById(R.id.exif_spinner)
+        mRv_photos = rootView.findViewById(R.id.rv_filtered_photos)
+        exifValue = rootView.findViewById(R.id.exif_value)
+        okButton = rootView.findViewById(R.id.button_ok)
+    }
+
+    private fun setListeners() {
+        okButton?.setOnClickListener { onOkClick() }
+        exifValue?.setOnClickListener { onExifValueClick() }
+        exifValue?.setOnFocusChangeListener { view, _ -> if (view.isFocusable) onExifValueClick() }
+    }
+
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(photo: PhotoFile)
     }
 
