@@ -9,7 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,6 +49,8 @@ class GalleryFragment : Fragment() {
         val cursor =
             requireContext().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
         while (cursor != null && cursor.moveToNext()) {
+            val photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+            val file = PhotoFile(photo)
             file.extractExifData()
             photosList.add(file)
         }
