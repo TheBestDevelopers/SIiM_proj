@@ -13,8 +13,13 @@ class PhotoFile(path: String) {
         @param exifParameter - the parameter you are looking for e.g. ExifInterface.TAG_DATETIME
         @return value of the parameter you are looking for
      */
-    fun readSingleExif(exifParameter: String) : String?{
+    fun readSingleExifString(exifParameter: String) : String?{
         val exif = ExifInterface(mPath)
         return exif.getAttribute(exifParameter)
+    }
+
+    fun readSingleExifInt(exifParameter: String, defaultValue: Int) : Int?{
+        val exif = ExifInterface(mPath)
+        return exif.getAttributeInt(exifParameter, defaultValue)
     }
 }

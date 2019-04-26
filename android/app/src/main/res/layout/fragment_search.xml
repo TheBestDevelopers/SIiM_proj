@@ -26,6 +26,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:layout_gravity="center_vertical"
+                    android:textSize="@dimen/search_fragment_font_size"
                     android:entries="@array/exifPropertiesList"/>
 
             <EditText
@@ -34,12 +35,22 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:singleLine="true"
-                    android:textSize="@dimen/search_fragment_font_size"/>
+                    android:textSize="@dimen/search_fragment_font_size"
+                    android:visibility="gone"/>
+
+            <Spinner
+                    android:id="@+id/exif_value_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical"
+                    android:textSize="@dimen/search_fragment_font_size"
+                    android:visibility="visible"/>
 
             <Button
                     android:id="@+id/button_ok"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="0.5"
                     tools:text="@android:string/ok"
                     android:text="@string/ok"/>
