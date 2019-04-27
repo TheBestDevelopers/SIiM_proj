@@ -27,7 +27,7 @@ import pl.aprilapps.easyphotopicker.MediaFile
 import pl.aprilapps.easyphotopicker.MediaSource
 
 
-class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
 
     private var mCurrentPhotoPath: String? = null
     val REQUEST_IMAGE_CAPTURE = 101

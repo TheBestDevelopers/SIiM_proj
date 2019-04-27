@@ -8,5 +8,8 @@
     <string name="gallery_tag">Gallery</string>
     <string name="search_tag">Search</string>
     <string name="details_tag">Photo details</string>
+    <string name="ok">OK</string>
+    <string name="default_date_pattern">yyyy-MM-dd</string>
+    <string name="colon_date_pattern">yyyy:MM:dd</string>
     <!--Fragments tags-->
 </resources>

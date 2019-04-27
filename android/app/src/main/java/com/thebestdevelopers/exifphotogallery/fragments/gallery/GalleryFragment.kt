@@ -7,7 +7,11 @@ import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+<<<<<<< HEAD
 import android.util.DisplayMetrics
+=======
+import android.util.Log
+>>>>>>> master
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,8 +66,8 @@ class GalleryFragment : Fragment() {
         val cursor =
             requireContext().contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
         while (cursor != null && cursor.moveToNext()) {
-            var photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
-            var file = PhotoFile(photo)
+            val photo = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+            val file = PhotoFile(photo)
             file.extractExifData()
             photosList.add(file)
         }
@@ -71,11 +75,16 @@ class GalleryFragment : Fragment() {
     }
 
     private fun setupRecyclerAdapter() {
+<<<<<<< HEAD
         val displayMetrics = DisplayMetrics()
         activity?.windowManager?.defaultDisplay?.getMetrics(displayMetrics)
 
         mRv_photos?.layoutManager = GridLayoutManager(requireContext(), columnNumb)
         mRv_photos?.adapter = GalleryRecyclerViewAdapter(photosList, listener, displayMetrics.widthPixels/columnNumb)
+=======
+        mRv_photos?.layoutManager = GridLayoutManager(requireContext(), 4)
+        mRv_photos?.adapter = GalleryRecyclerViewAdapter(photosList, listener)
+>>>>>>> master
     }
 
     override fun onAttach(context: Context?) {
