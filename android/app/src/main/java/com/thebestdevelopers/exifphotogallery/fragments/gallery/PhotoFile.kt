@@ -18,8 +18,13 @@ class PhotoFile(path: String) {
         return exif.getAttribute(exifParameter)
     }
 
-    fun readSingleExifInt(exifParameter: String, defaultValue: Int) : Int?{
+    fun readSingleExifInt(exifParameter: String, defaultValue: Int) : Int{
         val exif = ExifInterface(mPath)
         return exif.getAttributeInt(exifParameter, defaultValue)
+    }
+
+    fun readSingleExifDouble(exifParameter: String, defaultValue: Double) : Double{
+        val exif = ExifInterface(mPath)
+        return exif.getAttributeDouble(exifParameter, defaultValue)
     }
 }

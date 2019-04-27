@@ -12,7 +12,7 @@ import com.thebestdevelopers.exifphotogallery.fragments.gallery.GalleryRecyclerV
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
 import java.io.File
 
-class SearchRecycleViewAdapter(photoList: ArrayList<PhotoFile>, val listener: SearchFragment.OnFragmentInteractionListener?) : RecyclerView.Adapter<SearchRecycleViewAdapter.CustomViewHolder>() {
+class SearchRecycleViewAdapter(photoList: ArrayList<PhotoFile>, private val listener: SearchFragment.OnFragmentInteractionListener?) : RecyclerView.Adapter<SearchRecycleViewAdapter.CustomViewHolder>() {
     var photos = photoList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {

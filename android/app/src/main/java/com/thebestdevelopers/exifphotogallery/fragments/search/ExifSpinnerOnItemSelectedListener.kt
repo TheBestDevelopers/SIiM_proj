@@ -9,13 +9,18 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import com.thebestdevelopers.exifphotogallery.R
+import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
+import java.util.stream.Collector
+import java.util.stream.Collectors
 
 class ExifSpinnerOnItemSelectedListener(
     private val context: Context,
     private val exifValue: EditText?,
     private val exifValueSpinner: Spinner?,
     private val mRv_photos: RecyclerView?,
-    private val allPhotosAdapter: SearchRecycleViewAdapter
+    private val allPhotosAdapter: SearchRecycleViewAdapter,
+    private val allPhotosList: ArrayList<PhotoFile>
+
 ) : AdapterView.OnItemSelectedListener {
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -26,23 +31,40 @@ class ExifSpinnerOnItemSelectedListener(
         when (exifParameter.tagName) {
             ExifInterface.TAG_DATETIME -> onDateSelected()
             ExifInterface.TAG_ORIENTATION -> onOrientationSelected()
+            ExifInterface.TAG_ISO_SPEED_RATINGS -> onExposureTimeSelected(ExifInterface.TAG_ISO_SPEED_RATINGS)
         }
     }
 
-    private fun onOrientationSelected() {
-        exifValue?.visibility = View.GONE
-        exifValue?.text?.clear()
-        exifValueSpinner?.visibility = View.VISIBLE
+    private fun onExposureTimeSelected(paramTag: String) {
+        hideExifValueAndShowExifValueSpinner()
+        val exposureTimeValues =
+            allPhotosList.stream().mapToInt { photo -> photo.readSingleExifInt(paramTag, -100) }.distinct()
+                .filter { x -> x != -100 }.boxed().collect(Collectors.toList())
+        exposureTimeValues.sort()
+        exifValueSpinner?.adapter =
+            ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, exposureTimeValues)
+    }
 
-        val adapter =
+    private fun onOrientationSelected() {
+        hideExifValueAndShowExifValueSpinner()
+        exifValueSpinner?.adapter =
             ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, createExifOrientationValueList())
-        exifValueSpinner?.adapter = adapter
     }
 
     private fun onDateSelected() {
+        hideExifValueSpinnerAndShowExifValue()
+    }
+
+    private fun hideExifValueSpinnerAndShowExifValue() {
         exifValueSpinner?.visibility = View.GONE
         exifValue?.visibility = View.VISIBLE
         exifValue?.isFocusable = false
+    }
+
+    private fun hideExifValueAndShowExifValueSpinner() {
+        exifValue?.visibility = View.GONE
+        exifValue?.text?.clear()
+        exifValueSpinner?.visibility = View.VISIBLE
     }
 
     private fun createExifOrientationValueList(): ArrayList<ExifOrientationValue> {

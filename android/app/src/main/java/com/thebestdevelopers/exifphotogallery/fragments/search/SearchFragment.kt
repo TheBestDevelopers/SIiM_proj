@@ -86,6 +86,8 @@ class SearchFragment : Fragment() {
         exifParameters.add(item)
         item = ExifParameter("Orientation", ExifInterface.TAG_ORIENTATION)
         exifParameters.add(item)
+        item = ExifParameter("ISO speed", ExifInterface.TAG_ISO_SPEED_RATINGS)
+        exifParameters.add(item)
         return exifParameters
     }
 
@@ -105,7 +107,17 @@ class SearchFragment : Fragment() {
         when (exifSpinnerSelectedItemTag()) {
             ExifInterface.TAG_DATETIME -> filterByDate(ExifInterface.TAG_DATETIME)
             ExifInterface.TAG_ORIENTATION -> filterByOrientation(ExifInterface.TAG_ORIENTATION)
+            ExifInterface.TAG_ISO_SPEED_RATINGS -> filterByIsoSpeed(ExifInterface.TAG_ISO_SPEED_RATINGS)
         }
+    }
+
+    private fun filterByIsoSpeed(exifParameterTagName: String) {
+        val userIsoSpeedValue = exifValueSpinner?.selectedItem as Int
+        val filteredPhotoList =
+            allPhotosList.stream().filter { v -> v.readSingleExifInt(exifParameterTagName, -100) == userIsoSpeedValue }
+                .collect(Collectors.toList())
+        mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+        filteredPhotoList.clear()
     }
 
     private fun exifSpinnerSelectedItemTag(): String? {
@@ -194,7 +206,8 @@ class SearchFragment : Fragment() {
             exifValue,
             exifValueSpinner,
             mRv_photos,
-            SearchRecycleViewAdapter(allPhotosList, listener)
+            SearchRecycleViewAdapter(allPhotosList, listener),
+            allPhotosList
         )
     }
 
