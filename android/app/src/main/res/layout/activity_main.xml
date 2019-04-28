@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-    <TextView
+<!--    <TextView
             android:layout_width="match_parent"
             android:layout_height="60dp"
             app:layout_constraintTop_toTopOf="parent"
@@ -23,13 +23,13 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
-            app:layout_constraintTop_toBottomOf="@+id/viewText"/>
+            app:layout_constraintTop_toBottomOf="@+id/viewText"/>-->
 
     <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/mainFrame"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="10dp"
     />
 
 
@@ -40,6 +40,7 @@
             android:layout_marginEnd="0dp"
             android:layout_marginStart="0dp"
             android:background="?android:attr/windowBackground"
+            android:layout_alignParentBottom="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

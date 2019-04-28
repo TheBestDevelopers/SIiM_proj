@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_gallery -> {
-                viewText.setText(getString(R.string.gallery_tag))
+                //viewText.setText(getString(R.string.gallery_tag))
                 supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.mainFrame, GalleryFragment.newInstance(), getString(R.string.gallery_tag))
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_search -> {
-                viewText.setText(getString(R.string.search_tag))
+                //viewText.setText(getString(R.string.search_tag))
                 supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.mainFrame, SearchFragment.newInstance(), getString(R.string.search_tag))
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        viewText.setText(getString(R.string.gallery_tag))
+        //viewText.setText(getString(R.string.gallery_tag))
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         supportFragmentManager
             .beginTransaction()
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
     }
 
     override fun onFragmentInteraction(photo: PhotoFile) {
-        viewText.text = getString(R.string.details_tag)
+        //viewText.text = getString(R.string.details_tag)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.mainFrame, DetailsFragment.newInstance(photo))

@@ -20,14 +20,12 @@ class GalleryFragment : Fragment() {
     private var photosList: ArrayList<PhotoFile> = ArrayList()
     private var mRv_photos: RecyclerView? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        activity?.title = getString(R.string.gallery_tag)
         val rootView = inflater.inflate(R.layout.fragment_gallery, container, false)
         mRv_photos = rootView.findViewById(R.id.rv_photos) as RecyclerView
         checkPermissions()

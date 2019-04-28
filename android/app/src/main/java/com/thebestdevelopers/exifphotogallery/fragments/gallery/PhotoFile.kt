@@ -6,7 +6,7 @@ class PhotoFile(path: String) {
     var mPath = path
 
     fun extractExifData() {
-        var exif = ExifInterface(mPath)
+        //var exif = ExifInterface(mPath)
         //dane EXIF - możne tutaj je 'wydobyc'
     }
 
@@ -15,7 +15,8 @@ class PhotoFile(path: String) {
         @return value of the parameter you are looking for
      */
     fun readSingleExif(exifParameter: String) : String?{
-        val exif = ExifInterface(mPath)
-        return exif.getAttribute(exifParameter)
+/*        val exif = ExifInterface(mPath)
+        return exif.getAttribute(exifParameter)*/
+        return ""
     }
 }
