@@ -1,4 +1,4 @@
-package com.thebestdevelopers.exifphotogallery.fragments.gallery
+package com.thebestdevelopers.exifphotogallery.fragments.search
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -7,11 +7,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.squareup.picasso.Picasso
 import com.thebestdevelopers.exifphotogallery.R
+import com.thebestdevelopers.exifphotogallery.fragments.gallery.GalleryFragment
+import com.thebestdevelopers.exifphotogallery.fragments.gallery.GalleryRecyclerViewAdapter
+import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
 import java.io.File
 
-class GalleryRecyclerViewAdapter(photoList: ArrayList<PhotoFile>, val listener: GalleryFragment.OnFragmentInteractionListener?, val width : Int) :
-    RecyclerView.Adapter<GalleryRecyclerViewAdapter.CustomViewHolder>() {
-
+class SearchRecycleViewAdapter(photoList: ArrayList<PhotoFile>, private val listener: SearchFragment.OnFragmentInteractionListener?) : RecyclerView.Adapter<SearchRecycleViewAdapter.CustomViewHolder>() {
     var photos = photoList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
@@ -25,7 +26,7 @@ class GalleryRecyclerViewAdapter(photoList: ArrayList<PhotoFile>, val listener: 
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         val photo = photos[position]
-        Picasso.get().load(File(photo.mPath)).centerCrop().resize(width,width).into(holder.imageView)
+        Picasso.get().load(File(photo.mPath)).centerCrop().resize(200,200).into(holder.imageView)
         holder.itemView.setOnClickListener {
             listener?.onFragmentInteraction(photo)
         }
