@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
     private fun setHomeItem() {
         val bottomNavView = this.findViewById<BottomNavigationView>(R.id.navigation)
         bottomNavView.selectedItemId = R.id.navigation_gallery
-        viewText.text = getString(R.string.gallery_tag)
+        //viewText.text = getString(R.string.gallery_tag)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.mainFrame, GalleryFragment.newInstance(), getString(R.string.gallery_tag))

@@ -49,6 +49,7 @@ class SearchFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_search, container, false)
+        activity?.title = getString(R.string.search_tag)
         bindViews(rootView)
         setListeners()
         val adapter =
@@ -80,14 +81,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        activity?.title = getString(R.string.search_tag)
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
-        }
+
 
     private fun createExifParametersList(): ArrayList<ExifParameter> {
         val exifParameters = ArrayList<ExifParameter>()
