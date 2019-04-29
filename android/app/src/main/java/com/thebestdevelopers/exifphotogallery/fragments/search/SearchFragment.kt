@@ -20,6 +20,8 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.stream.Collectors
+import kotlin.collections.ArrayList
+import kotlin.reflect.KClass
 
 
 class SearchFragment : Fragment() {
@@ -81,18 +83,30 @@ class SearchFragment : Fragment() {
         }
     }
 
-
-
-    private fun createExifParametersList(): ArrayList<ExifParameter> {
-        val exifParameters = ArrayList<ExifParameter>()
-        var item = ExifParameter("Date", ExifInterface.TAG_DATETIME)
-        exifParameters.add(item)
-        item = ExifParameter("Orientation", ExifInterface.TAG_ORIENTATION)
-        exifParameters.add(item)
-        item = ExifParameter("ISO speed", ExifInterface.TAG_ISO_SPEED_RATINGS)
-        exifParameters.add(item)
-        return exifParameters
-    }
+    private fun createExifParametersList(): ArrayList<ExifParameter> =
+        arrayListOf(
+            ExifParameter("Date", ExifInterface.TAG_DATETIME, Any::class),
+            ExifParameter("Orientation", ExifInterface.TAG_ORIENTATION, Any::class),
+            ExifParameter("ISO speed", ExifInterface.TAG_ISO_SPEED_RATINGS, Int::class),
+            ExifParameter("Subfile type", ExifInterface.TAG_SUBFILE_TYPE, String::class),
+            ExifParameter("Image width", ExifInterface.TAG_IMAGE_WIDTH, Int::class),
+            ExifParameter("Image length", ExifInterface.TAG_IMAGE_LENGTH, Int::class),
+            ExifParameter("Compression", ExifInterface.TAG_COMPRESSION, Int::class),
+            ExifParameter("Bits per sample", ExifInterface.TAG_BITS_PER_SAMPLE, Int::class),
+            ExifParameter("Photometric inter.", ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION, Int::class),
+            ExifParameter("Aperture value", ExifInterface.TAG_APERTURE_VALUE, String::class),
+            ExifParameter("Artist", ExifInterface.TAG_ARTIST, String::class),
+            ExifParameter("Rows per strip", ExifInterface.TAG_ROWS_PER_STRIP, Int::class),
+            ExifParameter("Strip byte counts", ExifInterface.TAG_STRIP_BYTE_COUNTS, Int::class),
+            ExifParameter("Strip offsets", ExifInterface.TAG_STRIP_OFFSETS, Int::class),
+            ExifParameter("Samp. per pixel", ExifInterface.TAG_SAMPLES_PER_PIXEL, Int::class),
+            ExifParameter("Y resolution", ExifInterface.TAG_Y_RESOLUTION, String::class),
+            ExifParameter("X resolution", ExifInterface.TAG_X_RESOLUTION, String::class),
+            ExifParameter("Planar config.", ExifInterface.TAG_PLANAR_CONFIGURATION, Int::class),
+            ExifParameter("FC Y resolution", ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION, String::class),
+            ExifParameter("FC X resolution", ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION, String::class),
+            ExifParameter("Resolution unit", ExifInterface.TAG_RESOLUTION_UNIT, Int::class)
+        )
 
     override fun onStart() {
         super.onStart()
@@ -107,20 +121,54 @@ class SearchFragment : Fragment() {
     }
 
     private fun onOkClick() {
-        when (exifSpinnerSelectedItemTag()) {
-            ExifInterface.TAG_DATETIME -> filterByDate(ExifInterface.TAG_DATETIME)
-            ExifInterface.TAG_ORIENTATION -> filterByOrientation(ExifInterface.TAG_ORIENTATION)
-            ExifInterface.TAG_ISO_SPEED_RATINGS -> filterByIsoSpeed(ExifInterface.TAG_ISO_SPEED_RATINGS)
+        when (exifSpinnerSelectedItemValueType()) {
+            Any::class -> filterBySpecialExifValues()
+            String::class -> filterByStringExifValue(exifSpinnerSelectedItemTag())
+            Int::class -> filterByIntExifValue(exifSpinnerSelectedItemTag())
         }
     }
 
-    private fun filterByIsoSpeed(exifParameterTagName: String) {
-        val userIsoSpeedValue = exifValueSpinner?.selectedItem as Int
-        val filteredPhotoList =
-            allPhotosList.stream().filter { v -> v.readSingleExifInt(exifParameterTagName, -100) == userIsoSpeedValue }
-                .collect(Collectors.toList())
-        mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
-        filteredPhotoList.clear()
+    private fun filterBySpecialExifValues() {
+        when (exifSpinnerSelectedItemTag()) {
+            ExifInterface.TAG_DATETIME -> filterByDate(ExifInterface.TAG_DATETIME)
+            ExifInterface.TAG_ORIENTATION -> filterByOrientation(ExifInterface.TAG_ORIENTATION)
+        }
+    }
+
+    private fun filterByStringExifValue(exifParameterTagName: String?) {
+        if (exifValueSpinner?.selectedItem != null && exifParameterTagName != null) {
+            var userStringExifValue = exifValueSpinner?.selectedItem as String?
+
+            if (userStringExifValue == getString(R.string.exif_null_value_desc))
+                userStringExifValue = null
+
+            val filteredPhotoList =
+                allPhotosList.stream().filter { v -> v.readSingleExifString(exifParameterTagName) == userStringExifValue }
+                    .collect(Collectors.toList())
+            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+            filteredPhotoList.clear()
+        }
+    }
+
+    private fun filterByIntExifValue(exifParameterTagName: String?) {
+        if (exifValueSpinner?.selectedItem != null && exifParameterTagName != null) {
+            val userIntExifValue = exifValueSpinner?.selectedItem as IntegerExifValue
+
+            if(userIntExifValue.description == getString(R.string.exif_null_value_desc))
+                userIntExifValue.value = Int.MIN_VALUE
+
+            val filteredPhotoList =
+                allPhotosList.stream()
+                    .filter { v -> v.readSingleExifInt(exifParameterTagName, Int.MIN_VALUE) == userIntExifValue.value }
+                    .collect(Collectors.toList())
+            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+            filteredPhotoList.clear()
+        }
+    }
+
+    private fun exifSpinnerSelectedItemValueType(): KClass<out Any>? {
+        val exifParameter = exifSpinner?.selectedItem as ExifParameter?
+        return exifParameter?.valueType
     }
 
     private fun exifSpinnerSelectedItemTag(): String? {
@@ -210,7 +258,8 @@ class SearchFragment : Fragment() {
             exifValueSpinner,
             mRv_photos,
             SearchRecycleViewAdapter(allPhotosList, listener),
-            allPhotosList
+            allPhotosList,
+            okButton
         )
     }
 

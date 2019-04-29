@@ -1,7 +1,7 @@
 package com.thebestdevelopers.exifphotogallery.fragments.search
 
-data class ExifParameter(val name : String, val tagName : String){
-    override fun toString(): String {
-        return name
-    }
+import kotlin.reflect.KClass
+
+data class ExifParameter(val name : String, val tagName : String, val valueType : KClass<out Any>){
+    override fun toString(): String = name
 }

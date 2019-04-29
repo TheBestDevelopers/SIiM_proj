@@ -13,5 +13,6 @@
     <string name="ok">OK</string>
     <string name="default_date_pattern">yyyy-MM-dd</string>
     <string name="colon_date_pattern">yyyy:MM:dd</string>
+    <string name="exif_null_value_desc">empty</string>
     <!--Fragments tags-->
 </resources>

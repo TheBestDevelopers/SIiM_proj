@@ -4,14 +4,15 @@ import android.content.Context
 import android.support.media.ExifInterface
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.Spinner
+import android.widget.*
 import com.thebestdevelopers.exifphotogallery.R
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
-import java.util.stream.Collector
 import java.util.stream.Collectors
+import android.content.DialogInterface
+
+
+import android.support.v7.app.AlertDialog
+
 
 class ExifSpinnerOnItemSelectedListener(
     private val context: Context,
@@ -19,30 +20,72 @@ class ExifSpinnerOnItemSelectedListener(
     private val exifValueSpinner: Spinner?,
     private val mRv_photos: RecyclerView?,
     private val allPhotosAdapter: SearchRecycleViewAdapter,
-    private val allPhotosList: ArrayList<PhotoFile>
+    private val allPhotosList: ArrayList<PhotoFile>,
+    private val okButton: Button?
 
 ) : AdapterView.OnItemSelectedListener {
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         mRv_photos?.adapter = allPhotosAdapter
-
         val exifParameter = p0?.getItemAtPosition(p2) as ExifParameter
 
-        when (exifParameter.tagName) {
-            ExifInterface.TAG_DATETIME -> onDateSelected()
-            ExifInterface.TAG_ORIENTATION -> onOrientationSelected()
-            ExifInterface.TAG_ISO_SPEED_RATINGS -> onExposureTimeSelected(ExifInterface.TAG_ISO_SPEED_RATINGS)
+        when (exifParameter.valueType) {
+            Any::class -> onSpecialExifValueSelected(exifParameter.tagName)
+            String::class -> onStringExifValueSelected(exifParameter.tagName)
+            Int::class -> onIntExifValueSelected(exifParameter.tagName)
         }
     }
 
-    private fun onExposureTimeSelected(paramTag: String) {
+    private fun onSpecialExifValueSelected(tagName: String) {
+        when (tagName) {
+            ExifInterface.TAG_DATETIME -> onDateSelected()
+            ExifInterface.TAG_ORIENTATION -> onOrientationSelected()
+        }
+    }
+
+    private fun onStringExifValueSelected(paramTag: String) {
         hideExifValueAndShowExifValueSpinner()
-        val exposureTimeValues =
-            allPhotosList.stream().mapToInt { photo -> photo.readSingleExifInt(paramTag, -100) }.distinct()
-                .filter { x -> x != -100 }.boxed().collect(Collectors.toList())
-        exposureTimeValues.sort()
+        val allExifValues =
+            allPhotosList.stream().map { photo -> photo.readSingleExifString(paramTag) }.distinct()
+                .filter { x -> x != null }.collect(Collectors.toList())
+
+        checkExistenceOfExifValues(allExifValues.isEmpty())
+        allExifValues.add(context.getString(R.string.exif_null_value_desc))
         exifValueSpinner?.adapter =
-            ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, exposureTimeValues)
+            ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, allExifValues)
+    }
+
+    private fun onIntExifValueSelected(paramTag: String) {
+        hideExifValueAndShowExifValueSpinner()
+        val allExifValues =
+            allPhotosList.stream().mapToInt { photo -> photo.readSingleExifInt(paramTag, Int.MIN_VALUE) }.distinct()
+                .boxed().collect(Collectors.toList())
+        allExifValues.sort()
+
+        checkExistenceOfExifValues(allExifValues.count() == 1) // Int.MIN_VALUE nie jest filtrowane!!!
+
+        val packedAllExifValues = ArrayList<IntegerExifValue>()
+        allExifValues.forEach { x -> packedAllExifValues.add(IntegerExifValue(x, null)) }
+        if (allExifValues.contains(Int.MIN_VALUE)) {
+            packedAllExifValues.remove(IntegerExifValue(Int.MIN_VALUE, null))
+            packedAllExifValues.add(IntegerExifValue(Int.MIN_VALUE, context.getString(R.string.exif_null_value_desc)))
+        }
+
+        exifValueSpinner?.adapter =
+            ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, packedAllExifValues)
+    }
+
+    private fun checkExistenceOfExifValues(isEmpty: Boolean) {
+        if (isEmpty) {
+            AlertDialog.Builder(context)
+                .setTitle("Nothing to see here!")
+                .setMessage("Your photos do not have a value for the selected EXIF parameter")
+                .setPositiveButton(android.R.string.ok) { _, _ -> }
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show()
+            exifValueSpinner?.visibility = View.INVISIBLE
+            okButton?.visibility = View.INVISIBLE
+        }
     }
 
     private fun onOrientationSelected() {
@@ -59,26 +102,23 @@ class ExifSpinnerOnItemSelectedListener(
         exifValueSpinner?.visibility = View.GONE
         exifValue?.visibility = View.VISIBLE
         exifValue?.isFocusable = false
+        okButton?.visibility = View.VISIBLE
     }
 
     private fun hideExifValueAndShowExifValueSpinner() {
         exifValue?.visibility = View.GONE
         exifValue?.text?.clear()
         exifValueSpinner?.visibility = View.VISIBLE
+        okButton?.visibility = View.VISIBLE
     }
 
-    private fun createExifOrientationValueList(): ArrayList<ExifOrientationValue> {
-        val exifOrientationValues = ArrayList<ExifOrientationValue>()
-        var item = ExifOrientationValue(0, "horizontally")
-        exifOrientationValues.add(item)
-        item = ExifOrientationValue(90, "vertically")
-        exifOrientationValues.add(item)
-        item = ExifOrientationValue(180, "upside down")
-        exifOrientationValues.add(item)
-        item = ExifOrientationValue(270, "strange")
-        exifOrientationValues.add(item)
-        return exifOrientationValues
-    }
+    private fun createExifOrientationValueList(): ArrayList<ExifOrientationValue> =
+        arrayListOf(
+            ExifOrientationValue(0, "horizontally"),
+            ExifOrientationValue(90, "vertically"),
+            ExifOrientationValue(180, "upside down"),
+            ExifOrientationValue(270, "strange")
+        )
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
 
