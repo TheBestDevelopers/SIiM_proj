@@ -99,7 +99,7 @@ class DetailsFragment : Fragment() {
         val dirtyList = DetailContent.getDirtyList()
         if(dirtyList.isNotEmpty())
         try {
-            dirtyList.map { detailItem -> exifInterface.setAttribute(detailItem.tag, detailItem.value)}
+            dirtyList.map { detailItem -> exifInterface.setAttribute(detailItem.parameter.tag, if(detailItem.value == "") null else detailItem.value)}
             exifInterface.saveAttributes()
             Toast.makeText(activity, "Saved: "+dirtyList.size+" attributes.", Toast.LENGTH_LONG).show()
         }   catch (exception : IOException){
