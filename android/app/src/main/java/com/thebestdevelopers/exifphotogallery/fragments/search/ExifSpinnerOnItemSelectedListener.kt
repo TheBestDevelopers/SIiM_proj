@@ -8,7 +8,6 @@ import android.widget.*
 import com.thebestdevelopers.exifphotogallery.R
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
 import java.util.stream.Collectors
-import android.content.DialogInterface
 
 
 import android.support.v7.app.AlertDialog
@@ -29,18 +28,18 @@ class ExifSpinnerOnItemSelectedListener(
         mRv_photos?.adapter = allPhotosAdapter
         val exifParameter = p0?.getItemAtPosition(p2) as ExifParameter
 
-        when (exifParameter.valueType) {
-            Any::class -> onSpecialExifValueSelected(exifParameter.tagName)
+        when (exifParameter.returnValueType) {
+            Any::class -> onSpecialExifValueSelected(exifParameter.tagName, exifParameter.possibleValues)
             String::class -> onStringExifValueSelected(exifParameter.tagName)
             Int::class -> onIntExifValueSelected(exifParameter.tagName)
         }
     }
 
-    private fun onSpecialExifValueSelected(tagName: String) {
-        when (tagName) {
-            ExifInterface.TAG_DATETIME -> onDateSelected()
-            ExifInterface.TAG_ORIENTATION -> onOrientationSelected()
-        }
+    private fun onSpecialExifValueSelected(tagName: String, possibleValues: ArrayList<PossibleExifValue<*>>?) {
+        if (tagName == ExifInterface.TAG_DATETIME)
+            onDateSelected()
+        else
+            onOrientationSelected(possibleValues)
     }
 
     private fun onStringExifValueSelected(paramTag: String) {
@@ -88,10 +87,10 @@ class ExifSpinnerOnItemSelectedListener(
         }
     }
 
-    private fun onOrientationSelected() {
+    private fun onOrientationSelected(possibleValues: ArrayList<PossibleExifValue<*>>?) {
         hideExifValueAndShowExifValueSpinner()
         exifValueSpinner?.adapter =
-            ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, createExifOrientationValueList())
+            ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, possibleValues)
     }
 
     private fun onDateSelected() {
@@ -111,14 +110,6 @@ class ExifSpinnerOnItemSelectedListener(
         exifValueSpinner?.visibility = View.VISIBLE
         okButton?.visibility = View.VISIBLE
     }
-
-    private fun createExifOrientationValueList(): ArrayList<ExifOrientationValue> =
-        arrayListOf(
-            ExifOrientationValue(0, "horizontally"),
-            ExifOrientationValue(90, "vertically"),
-            ExifOrientationValue(180, "upside down"),
-            ExifOrientationValue(270, "strange")
-        )
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
 
