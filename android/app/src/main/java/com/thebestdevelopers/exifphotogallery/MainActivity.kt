@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), GalleryFragment.OnFragmentInteractionL
                         .replace(R.id.mainFrame, SearchFragment.newInstance(), getString(R.string.search_tag))
                         .addToBackStack(null)
                         .commit()
-                    R.id.navigation_search
+                    currentFragment = R.id.navigation_search
                 }
                 return@OnNavigationItemSelectedListener true
             }
