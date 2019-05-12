@@ -102,9 +102,11 @@ class DetailsFragment : Fragment() {
             dirtyList.map { detailItem -> exifInterface.setAttribute(detailItem.parameter.tag, if(detailItem.value == "") null else detailItem.value)}
             exifInterface.saveAttributes()
             Toast.makeText(activity, "Saved: "+dirtyList.size+" attributes.", Toast.LENGTH_LONG).show()
+            return
         }   catch (exception : IOException){
             Toast.makeText(activity, exception.message, Toast.LENGTH_LONG).show()
             //throw exception
+            return
         }
         Toast.makeText(activity, "Nothing to save", Toast.LENGTH_LONG).show()
     }
