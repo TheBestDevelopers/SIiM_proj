@@ -1,17 +1,26 @@
 package com.thebestdevelopers.exifphotogallery.fragments.search
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Context
 import android.support.media.ExifInterface
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionDeniedResponse
+import com.karumi.dexter.listener.PermissionGrantedResponse
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.single.PermissionListener
 
 import com.thebestdevelopers.exifphotogallery.R
 import com.thebestdevelopers.exifphotogallery.fragments.gallery.PhotoFile
@@ -29,6 +38,7 @@ class SearchFragment : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
     private var exifSpinner: Spinner? = null
     private var allPhotosList: ArrayList<PhotoFile> = ArrayList()
+    private var actualPhotosList: ArrayList<PhotoFile> = ArrayList()
     private var mRv_photos: RecyclerView? = null
     private var exifValue: EditText? = null
     private var exifValueSpinner: Spinner? = null
@@ -54,6 +64,8 @@ class SearchFragment : Fragment() {
         activity?.title = getString(R.string.search_tag)
         bindViews(rootView)
         setListeners()
+        mRv_photos?.itemAnimator = DefaultItemAnimator()
+        mRv_photos?.setHasFixedSize(true)
         val adapter =
             ArrayAdapter(
                 requireContext(),
@@ -77,20 +89,23 @@ class SearchFragment : Fragment() {
                 exifValue?.setSelection(formatter.toPattern().length)
             }
 
-            DatePickerDialog(
+            val datePickerDialog = DatePickerDialog(
                 requireContext(),
                 datePickerOnDataSetListener,
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            )
+
+            datePickerDialog.datePicker.maxDate = calendar.timeInMillis
+            datePickerDialog.show()
+
         }
     }
 
     override fun onStart() {
         super.onStart()
-        getGalleryFromStorage()
-        setupRecyclerAdapter()
+        checkPermissions()
     }
 
     override fun onStop() {
@@ -126,7 +141,10 @@ class SearchFragment : Fragment() {
                 allPhotosList.stream()
                     .filter { v -> v.readSingleExifString(exifParameterTagName) == userStringExifValue }
                     .collect(Collectors.toList())
-            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+
+            actualPhotosList.clear()
+            actualPhotosList.addAll(filteredPhotoList)
+            mRv_photos?.adapter?.notifyDataSetChanged()
             filteredPhotoList.clear()
         }
     }
@@ -139,7 +157,10 @@ class SearchFragment : Fragment() {
                 allPhotosList.stream()
                     .filter { v -> v.readSingleExifInt(exifParameterTagName, Int.MIN_VALUE) == userIntExifValue.value }
                     .collect(Collectors.toList())
-            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+
+            actualPhotosList.clear()
+            actualPhotosList.addAll(filteredPhotoList)
+            mRv_photos?.adapter?.notifyDataSetChanged()
             filteredPhotoList.clear()
         }
     }
@@ -165,8 +186,11 @@ class SearchFragment : Fragment() {
                         formatter2.parse(userDate?.toString())
             }.collect(Collectors.toList())
 
-            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+            actualPhotosList.clear()
+            actualPhotosList.addAll(filteredPhotoList)
+            mRv_photos?.adapter?.notifyDataSetChanged()
             filteredPhotoList.clear()
+
         } catch (e: ParseException) {
             Toast.makeText(requireContext(), "Enter date!", Toast.LENGTH_SHORT).show()
         }
@@ -183,7 +207,10 @@ class SearchFragment : Fragment() {
                     ) == userIntExifValue
                 }
                 .collect(Collectors.toList())
-            mRv_photos?.adapter = SearchRecycleViewAdapter(ArrayList(filteredPhotoList), listener)
+
+            actualPhotosList.clear()
+            actualPhotosList.addAll(filteredPhotoList)
+            mRv_photos?.adapter?.notifyDataSetChanged()
             filteredPhotoList.clear()
         }
     }
@@ -201,7 +228,8 @@ class SearchFragment : Fragment() {
 
     private fun setupRecyclerAdapter() {
         mRv_photos?.layoutManager = GridLayoutManager(requireContext(), 4)
-        mRv_photos?.adapter = SearchRecycleViewAdapter(allPhotosList, listener)
+        actualPhotosList.addAll(allPhotosList)
+        mRv_photos?.adapter = SearchRecycleViewAdapter(actualPhotosList, listener)
     }
 
     override fun onDetach() {
@@ -225,10 +253,40 @@ class SearchFragment : Fragment() {
             exifValue,
             exifValueSpinner,
             mRv_photos,
-            SearchRecycleViewAdapter(allPhotosList, listener),
+            actualPhotosList,
             allPhotosList,
             okButton
         )
+    }
+
+    private fun checkPermissions() {
+        Dexter.withActivity(activity)
+            .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            .withListener(object : PermissionListener {
+                override fun onPermissionRationaleShouldBeShown(
+                    permission: PermissionRequest?,
+                    token: PermissionToken?
+                ) {
+                    token?.continuePermissionRequest()
+                }
+
+                override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Permission is missing!")
+                        .setMessage("You must grant permission to see your photos")
+                        .setPositiveButton(android.R.string.ok) { _, _ -> checkPermissions() }
+                        .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show()
+                    exifValueSpinner?.visibility = View.INVISIBLE
+                    okButton?.visibility = View.INVISIBLE
+                }
+
+                override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                    getGalleryFromStorage()
+                    setupRecyclerAdapter()
+                }
+            }).check()
     }
 
     interface OnFragmentInteractionListener {

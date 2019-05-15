@@ -18,14 +18,17 @@ class ExifSpinnerOnItemSelectedListener(
     private val exifValue: EditText?,
     private val exifValueSpinner: Spinner?,
     private val mRv_photos: RecyclerView?,
-    private val allPhotosAdapter: SearchRecycleViewAdapter,
+    private var actualPhotoList : ArrayList<PhotoFile>,
     private val allPhotosList: ArrayList<PhotoFile>,
     private val okButton: Button?
 
 ) : AdapterView.OnItemSelectedListener {
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-        mRv_photos?.adapter = allPhotosAdapter
+        actualPhotoList.clear()
+        actualPhotoList.addAll(allPhotosList)
+        mRv_photos?.adapter?.notifyDataSetChanged()
+
         val exifParameter = p0?.getItemAtPosition(p2) as ExifParameter
 
         when (exifParameter.returnValueType) {

@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.DisplayMetrics
@@ -48,8 +49,13 @@ class GalleryFragment : Fragment() {
                 }
 
                 override fun onPermissionDenied(response: PermissionDeniedResponse?) {
-                    //permission denied
-                    Toast.makeText(context,"Do działania aplikacji wymagany jest dostęp do galerii zdjęć", Toast.LENGTH_LONG).show()
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Permission is missing!")
+                        .setMessage("You must grant permission to see your photos")
+                        .setPositiveButton(android.R.string.ok) { _, _ -> checkPermissions() }
+                        .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show()
                 }
 
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
